@@ -1,0 +1,5 @@
+# generated project files
+.*.wbproj
+
+# world thumbnail files
+.*.jpg
