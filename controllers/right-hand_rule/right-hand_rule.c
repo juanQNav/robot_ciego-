@@ -19,7 +19,7 @@
 #define TIME_STEP 32
 #define MAX_SPEED 10
 #define TURN_SPEED_FACTOR 0.3
-#define TURN_DURATION 0.5 // Adjust based on actual turn duration in your environment
+#define DISTANCE_THRESHOLD 0.3
 
 // Define matrices and variables for the Kalman Filter of the front sensor
 float x_front_k[2] = {0, 0};                       // state vector: [distance, velocity].
@@ -200,8 +200,8 @@ int main(int argc, char **argv)
     float left_distance_kalman = x_left_k[0];
 
     // Deciding the robot's movement
-    bool there_front_wall = front_distance_kalman <= 0.29;
-    bool there_left_wall = left_distance_kalman <= 0.29;
+    bool there_front_wall = front_distance_kalman <= DISTANCE_THRESHOLD;
+    bool there_left_wall = left_distance_kalman <= DISTANCE_THRESHOLD;
     bool no_walls = !there_front_wall && !there_left_wall;
 
     if (no_walls && flag)
@@ -229,7 +229,7 @@ int main(int argc, char **argv)
       wb_robot_step(TIME_STEP * 18);
       turn_270_left(left_motor, right_motor, iu);
       forward(left_motor, right_motor);
-      wb_robot_step(TIME_STEP * 31);
+      wb_robot_step(TIME_STEP * 32);
       flag_after_left = false;
     }
     else
