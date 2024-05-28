@@ -2,7 +2,7 @@
  * File:          right-hand_rule.c
  * Date: 24/05/2024
  * Description: Robot Kehepera IV.
- *              This robot have 5 ultrasonic sensors. We only use 2 ultrasonic sensors. To avoid collisions, the robot must use these proximity sensors. To exit the maze the robot must use the right hand rule (the robot can only turn to the right and must always go close to the wall).
+ *              This robot have 5 ultrasonic sensors. We only use 2 ultrasonic sensors. To avoid collisions, the robot must use these proximity sensors. To exit the maze, the robot must use the right hand rule.
  * Author: QUISTIAN NAVARRO JUAN LUIS
  * Modifications:
  */
@@ -19,7 +19,7 @@
 #define TIME_STEP 32
 #define MAX_SPEED 10
 #define TURN_SPEED_FACTOR 0.3
-#define DISTANCE_THRESHOLD 0.3
+#define DISTANCE_THRESHOLD 0.29
 
 // Define matrices and variables for the Kalman Filter of the front sensor
 float x_front_k[2] = {0, 0};                       // state vector: [distance, velocity].
@@ -31,8 +31,8 @@ float R = 0.05;                                    // Covariance matrix of the m
 float I[2][2] = {{1, 0}, {0, 1}};                  // Identity matrix
 
 // Define matrices and variables for the Kalman Filter of the left sensor
-float x_left_k[2] = {0, 0};              // state vector: [distance, velocity].
-float P_left_k[2][2] = {{1, 0}, {0, 1}}; // Covariance matrix
+float x_right_k[2] = {0, 0};              // state vector: [distance, velocity].
+float P_right_k[2][2] = {{1, 0}, {0, 1}}; // Covariance matrix
 
 void kalman_predict(float x_k[], float P_k[][2])
 {
@@ -163,8 +163,8 @@ int main(int argc, char **argv)
   // Enable and obtain the front ultrasonic sensor and set its passing time.
   WbDeviceTag front_ultrasonic_sensor = wb_robot_get_device("front ultrasonic sensor");
   wb_distance_sensor_enable(front_ultrasonic_sensor, time_step);
-  WbDeviceTag left_ultrasonic_sensor = wb_robot_get_device("left ultrasonic sensor");
-  wb_distance_sensor_enable(left_ultrasonic_sensor, time_step);
+  WbDeviceTag right_ultrasonic_sensor = wb_robot_get_device("right ultrasonic sensor");
+  wb_distance_sensor_enable(right_ultrasonic_sensor, time_step);
 
   // Obtain and configure the left and right motors
   WbDeviceTag left_motor = wb_robot_get_device("left wheel motor");
@@ -179,7 +179,7 @@ int main(int argc, char **argv)
   wb_inertial_unit_enable(iu, time_step);
 
   bool flag = true;
-  bool flag_after_left = false;
+  bool flag_after_right = false;
 
   char str_message[150];
 
@@ -187,7 +187,7 @@ int main(int argc, char **argv)
   {
     // Read distance from ultrasonic sensor
     float front_distance = wb_distance_sensor_get_value(front_ultrasonic_sensor);
-    float left_distance = wb_distance_sensor_get_value(left_ultrasonic_sensor);
+    float right_distance = wb_distance_sensor_get_value(right_ultrasonic_sensor);
 
     // Apply the Kalman filter for the front sensor
     kalman_predict(x_front_k, P_front_k);
@@ -195,14 +195,14 @@ int main(int argc, char **argv)
     float front_distance_kalman = x_front_k[0];
 
     // Apply the Kalman filter for the left sensor
-    kalman_predict(x_left_k, P_left_k);
-    kalman_update(x_left_k, P_left_k, left_distance);
-    float left_distance_kalman = x_left_k[0];
+    kalman_predict(x_right_k, P_right_k);
+    kalman_update(x_right_k, P_right_k, right_distance);
+    float right_distance_kalman = x_right_k[0];
 
     // Deciding the robot's movement
     bool there_front_wall = front_distance_kalman <= DISTANCE_THRESHOLD;
-    bool there_left_wall = left_distance_kalman <= DISTANCE_THRESHOLD;
-    bool no_walls = !there_front_wall && !there_left_wall;
+    bool there_right_wall = right_distance_kalman <= DISTANCE_THRESHOLD;
+    bool no_walls = !there_front_wall && !there_right_wall;
 
     if (no_walls && flag)
     { // The robot has just started
@@ -212,38 +212,38 @@ int main(int argc, char **argv)
     else if (there_front_wall)
     { // Turn right
       strcpy(str_message, "There is a wall in front");
-      turn(-1, left_motor, right_motor, iu); // Turn right (dir=-1)
-      flag = false;
-      flag_after_left = false;
-    }
-    else if (there_left_wall)
-    {
-      strcpy(str_message, "There is a wall on the left");
-      forward(left_motor, right_motor);
-      flag_after_left = true;
-    }
-    else if (no_walls && flag_after_left)
-    {
-      strcpy(str_message, "No walls and no left wall, turning 270 degrees left");
-      forward(left_motor, right_motor);
-      wb_robot_step(TIME_STEP * 18);
-      turn_270_left(left_motor, right_motor, iu);
-      forward(left_motor, right_motor);
-      wb_robot_step(TIME_STEP * 32);
-      flag_after_left = false;
-    }
-    else
-    {
-      strcpy(str_message, "no case");
+      turn(1, left_motor, right_motor, iu);   // Turn left (dir=1)
       wb_motor_set_velocity(left_motor, 0.0); // Set initial velocity to 0
       wb_motor_set_velocity(right_motor, 0.0);
+      wb_robot_step(TIME_STEP * 18);
+      flag = false;
+      flag_after_right = false;
+    }
+    else if (there_right_wall)
+    {
+      strcpy(str_message, "There is a wall on the right");
+      forward(left_motor, right_motor);
+      flag_after_right = true;
+    }
+    else if (no_walls && flag_after_right)
+    {
+      strcpy(str_message, "No walls, turn 90° to right");
+      forward(left_motor, right_motor);
+      wb_robot_step(TIME_STEP * 18);
+      turn(-1, left_motor, right_motor, iu); // Turn right (dir=-1)
+      forward(left_motor, right_motor);
+      wb_robot_step(TIME_STEP * 30);
+      flag_after_right = false;
+      wb_motor_set_velocity(left_motor, 0.0); // Set initial velocity to 0
+      wb_motor_set_velocity(right_motor, 0.0);
+      wb_robot_step(TIME_STEP * 18);
     }
     // Print information for debugging
     printf("message: %s\n", str_message);
     printf("front distance (Kalman): %f\n", front_distance_kalman);
     printf("front distance (sensor): %f\n", front_distance);
-    printf("left distance (Kalman): %f\n", left_distance_kalman);
-    printf("left distance (sensor): %f\n", left_distance);
+    printf("right distance (Kalman): %f\n", right_distance_kalman);
+    printf("right distance (sensor): %f\n", right_distance);
     printf("-----------------------\n");
   };
 

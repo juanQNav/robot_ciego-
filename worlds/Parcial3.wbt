@@ -3,8 +3,8 @@ WorldInfo {
   coordinateSystem "NUE"
 }
 Viewpoint {
-  orientation 0.5165330340004864 -0.6827481628656009 -0.516767424369899 4.3392771028541635
-  position 1.9032877186221138 6.60393471337394 0.016303602171352922
+  orientation 1 0 0 4.71238898038469
+  position -8.39424019390576e-17 8.551434663419409 6.231829902900591e-16
 }
 TexturedBackground {
 }
@@ -30,15 +30,124 @@ DEF Floor1 Solid {
   boundingObject USE Floor
 }
 OilBarrel {
-  translation -0.11 0.15 -0.12
+  translation 0.69 0.15 -1.01
   height 0.2
   radius 0.08
 }
-OilBarrel {
-  translation -0.24 0.15 -1.14
+Solid {
+  translation -0.22 0.15 -0.05
+  children [
+    Shape {
+      appearance PBRAppearance {
+        baseColorMap ImageTexture {
+          url [
+            "textures/oil_barrel_side_base_color.jpg"
+          ]
+        }
+        roughnessMap ImageTexture {
+          url [
+            "textures/oil_barrel_side_roughness.jpg"
+          ]
+        }
+        metalnessMap ImageTexture {
+          url [
+            "textures/oil_barrel_side_metalness.jpg"
+          ]
+        }
+        normalMap ImageTexture {
+          url [
+            "textures/oil_barrel_side_normal.jpg"
+          ]
+        }
+        occlusionMap ImageTexture {
+          url [
+            "textures/oil_barrel_side_occlusion.jpg"
+          ]
+        }
+      }
+      geometry Cylinder {
+        bottom FALSE
+        height 0.2
+        radius 0.08
+        top FALSE
+      }
+    }
+    Shape {
+      appearance PBRAppearance {
+        baseColorMap ImageTexture {
+          url [
+            "textures/oil_barrel_top_base_color.jpg"
+          ]
+        }
+        roughnessMap ImageTexture {
+          url [
+            "textures/oil_barrel_top_roughness.jpg"
+          ]
+        }
+        metalnessMap ImageTexture {
+          url [
+            "textures/oil_barrel_top_metalness.jpg"
+          ]
+        }
+        normalMap ImageTexture {
+          url [
+            "textures/oil_barrel_top_normal.jpg"
+          ]
+        }
+        occlusionMap ImageTexture {
+          url [
+            "textures/oil_barrel_top_occlusion.jpg"
+          ]
+        }
+      }
+      geometry Cylinder {
+        bottom FALSE
+        height 0.2
+        radius 0.08
+        side FALSE
+      }
+    }
+    Shape {
+      appearance PBRAppearance {
+        baseColorMap ImageTexture {
+          url [
+            "textures/oil_barrel_bottom_base_color.jpg"
+          ]
+        }
+        roughnessMap ImageTexture {
+          url [
+            "textures/oil_barrel_bottom_roughness.jpg"
+          ]
+        }
+        metalness 0
+        normalMap ImageTexture {
+          url [
+            "textures/oil_barrel_bottom_normal.jpg"
+          ]
+        }
+        occlusionMap ImageTexture {
+          url [
+            "textures/oil_barrel_bottom_occlusion.jpg"
+          ]
+        }
+      }
+      geometry Cylinder {
+        height 0.2
+        radius 0.08
+        side FALSE
+        top FALSE
+      }
+    }
+  ]
   name "oil barrel(1)"
-  height 0.2
-  radius 0.08
+  model "oil barrel"
+  boundingObject Cylinder {
+    height 0.3
+    radius 0.09
+  }
+  recognitionColors [
+    0.4 0.1 0.1
+  ]
 }
 Solid {
   translation 0 0.05 2
@@ -201,7 +310,7 @@ Solid {
   boundingObject USE Wall2
 }
 Solid {
-  translation 0.1 0.06 1.21
+  translation 0.11 0.06 1.17
   children [
     USE Wall2
   ]
@@ -209,7 +318,7 @@ Solid {
   boundingObject USE Wall2
 }
 Solid {
-  translation 0.86 0.06 1.2
+  translation 0.86 0.06 1.17
   children [
     USE Wall2
   ]
@@ -234,7 +343,7 @@ Solid {
   boundingObject USE Wall2
 }
 DEF dogHouse Solid {
-  translation 0.28 0.1 -1.5
+  translation 0.28 0.1 -1.7
   children [
     DEF dhouse Group {
       children [
@@ -418,8 +527,8 @@ DEF bridge Solid {
   boundingObject USE bridgeG
 }
 Robot {
-  translation -0.66031 0.049846 -0.84936
-  rotation 0 1 0 1.5708
+  translation -1.29031 0.049846 -1.24936
+  rotation 0 -1 0 -5.307179586466759e-06
   children [
     InertialUnit {
       translation 0 0.08 0
@@ -1349,7 +1458,7 @@ Robot {
   controller "right-hand_rule"
 }
 Solid {
-  translation -1.76 0 -0.21
+  translation -1.58 0 0.09
   scale 0.5 0.5 0.5
   children [
     Transform {
@@ -1563,7 +1672,7 @@ Solid {
   }
 }
 Rock17cm {
-  translation 0 0 1.8
+  translation -0.74 0 0.87
 }
 Solid {
   translation 1.55 0.26 -0.5
@@ -1610,7 +1719,7 @@ Solid {
   boundingObject USE white_wall
 }
 Solid {
-  translation 0.13 0.26 1.19
+  translation 0.1 0.26 1.17
   children [
     USE white_wall
   ]
@@ -1618,7 +1727,15 @@ Solid {
   boundingObject USE white_wall
 }
 Solid {
-  translation 0.86 0.26 1.19
+  translation 0.11 0.15 1.09
+  children [
+    USE Wall2
+  ]
+  name "solid(40)"
+  boundingObject USE Wall2
+}
+Solid {
+  translation 0.86 0.26 1.17
   children [
     USE white_wall
   ]
@@ -1658,6 +1775,15 @@ Solid {
     USE white_wall
   ]
   name "solid(38)"
+  boundingObject USE white_wall
+}
+Solid {
+  translation -1.9 0.17 1.64
+  rotation 0 1 0 1.5708
+  children [
+    USE white_wall
+  ]
+  name "solid(39)"
   boundingObject USE white_wall
 }
 Solid {
